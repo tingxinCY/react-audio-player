@@ -24,7 +24,7 @@
     "typescript": "^3.2.2"
   },
   "scripts": {
-    "build": "rollup -c & tsc",
+    "build": "rollup -c & npm run build:type",
     "dev": "rollup -c -w",
     "test": "ts-node test/test.ts",
     "pretest": "npm run build",
