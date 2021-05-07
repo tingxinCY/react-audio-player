@@ -5,10 +5,7 @@
 - 播放器内置 AudioBuffer 加载工具，支持基于 url 加载和基于本地文件进行加载。
 
 ```js
-import WebAudioPlayer, {
-  loadAudioFromUrl,
-  playerState,
-} from "@tingxin_cy/web-audio-player";
+import WebAudioPlayer, { loadAudioFromUrl, TPlayerState } from '@tingxin_cy/web-audio-player';
 
 const loader = loadAudioFromUrl({
   url,
@@ -24,16 +21,27 @@ loader.then((audioBuffer) => {
   // 创建播放器实例
   this.player = new WebAudioPlayer();
   this.player.audioBuffer = audioBuffer;
-  this.player.onStateChange = (state: playerState) => {
+  this.player.onStateChange = (state: TPlayerState) => {
     console.log(state);
   };
-  this.player.config = {
+
+  // 循环播放，从10s处开始播放，当播放至25s之后便进入15s-25s循环播放
+  this.player.setConfig({
     loop: true,
-    gainValue: 1,
-    rateValue: 1,
-  };
+    startOffset: 10,
+    loopStart: 15,
+    loopEnd: 25,
+  });
+
+  // 非循环播放，从10s处开始播放，播放至20s处结束
+  this.player.setConfig({
+    loop: false,
+    startOffset: 10,
+    endOffset: 20,
+  });
+
   // 开始播放
-  this.player.start();
+  this.player.play();
 });
 ```
 
@@ -42,23 +50,26 @@ loader.then((audioBuffer) => {
 - `audioBuffer` (AudioBuffer) (read & write): 音频资源
 - `currentTime` (Number) (read-only): 当前播放时间
 - `duration` (Number) (read-only): 当前音频总时长
-- `state` (playerState) (read-only): 当前播放器状态，例如'suspended'、'running'
+- `state` (TPlayerState) (read-only): 当前播放器状态
+  - stop: 播放器初始状态，播放器处于起点状态。
   - running: 播放中
   - paused: 暂停中
   - ended: 非循环模式下，播放至结尾结束播放，可针对该状态实现特殊业务逻辑
-- `config` (playerConfig)(read & write): 播放器配置
-  - loop?:boolean 循环播放
-  - rateValue?:number 播放速率
-  - gainValue?:number 音量增益
-  - startOffset?:number 起始播放偏移量，可以理解为播放起点时间，单位秒。
-  - rangeStart?:number 循环区间起点，单位秒。
-  - rangeEnd?:number 循环区间终点，单位秒
+- `config` (playerConfig)(read): 播放器配置
+  - loop?:boolean; 循环播放
+  - rateValue?:number; 播放速率
+  - gainValue?:number; 音量增益
+  - startOffset?:number; 起始播放偏移量，可以理解为播放起点时间，在循环播放模式下，startOffset 必须小于 loopEnd，单位秒。
+  - endOffset?: number; 终点播放偏移量，可以理解为播放终点时间，仅适用于非循环播放模式下，endOffset 必须大于 startOffset
+  - loopStart?:number; 循环区间起点，单位秒。
+  - loopEnd?:number; 循环区间终点，loopEnd 必须大于 loopStart，单位秒
 
 ## 方法
 
-- `start()`: 开始播放
+- `play()`: 开始播放
 - `pause()`: 暂停播放
-- `destroy()`: 销毁播放器
+- `stop()`: 停止播放，播放进度重置回起点（startOffset）
+- `destroy()`: 销毁播放器，释放资源占用
 
 ## 音频加载方法
 
