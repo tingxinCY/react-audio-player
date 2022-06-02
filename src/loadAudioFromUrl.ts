@@ -14,6 +14,7 @@ interface IAudioLoaderOptions {
 function loadAudioFromUrl(options: IAudioLoaderOptions): Promise<AudioBuffer> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
     xhr.responseType = 'arraybuffer';
 
     xhr.onloadstart = () => {
